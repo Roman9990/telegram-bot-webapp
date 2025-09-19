@@ -19,10 +19,10 @@ from aiogram.types import (
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 # ========== НАСТРОЙКИ ==========
-API_TOKEN = "ВАШ_ТОКЕН_БОТА_ЗДЕСЬ"  # ЗАМЕНИТЕ НА РЕАЛЬНЫЙ ТОКЕН!
+API_TOKEN = "8489240049:AAHtyPfco7jlIrydjE6ZWU64y3ABoSBKmBY"  # ЗАМЕНИТЕ НА РЕАЛЬНЫЙ ТОКЕН!
 GROUP_ID = -1002790143289  # ID группы-очереди
 LOG_GROUP_ID = -1002967411172  # ID группы для логирования диалогов
-OWNER_ID = 6618163794  # Ваш Telegram ID
+OWNER_ID = 5518423575  # Ваш Telegram ID
 
 # URL мини-приложений - GitHub Pages URLs
 USER_WEBAPP_URL = "https://YOUR_USERNAME.github.io/telegram-bot-webapp/user-app.html"
