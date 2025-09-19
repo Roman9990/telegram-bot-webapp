@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор администратора</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--tg-theme-bg-color, #0f0f0f);
+            color: var(--tg-theme-text-color, #ffffff);
+            padding: 16px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--tg-theme-secondary-bg-color, #1a1a1a);
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--tg-theme-text-color, #ffffff);
+        }
+
+        .header p {
+            color: var(--tg-theme-hint-color, #aaaaaa);
+            font-size: 14px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            flex: 1;
+            padding: 16px;
+            background: var(--tg-theme-secondary-bg-color, #1a1a1a);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #2ea6ff);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+            margin-top: 4px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .admin-card {
+            background: var(--tg-theme-secondary-bg-color, #1a1a1a);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, background-color 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .admin-card:hover {
+            transform: translateY(-2px);
+            background: var(--tg-theme-secondary-bg-color, #252525);
+        }
+
+        .admin-card.selected {
+            border-color: var(--tg-theme-button-color, #2ea6ff);
+            background: rgba(46, 166, 255, 0.1);
+        }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .admin-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--tg-theme-button-color, #2ea6ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .admin-info h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: var(--tg-theme-text-color, #ffffff);
+        }
+
+        .admin-status {
+            font-size: 12px;
+            color: #4CAF50;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+
+        .admin-details {
+            margin-top: 12px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .detail-label {
+            color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+
+        .detail-value {
+            color: var(--tg-theme-text-color, #ffffff);
+            font-weight: 500;
+        }
+
+        .rating {
+            color: #FFB000;
+        }
+
+        .response-time {
+            color: #4CAF50;
+        }
+
+        .specialization {
+            background: rgba(46, 166, 255, 0.2);
+            color: var(--tg-theme-button-color, #2ea6ff);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #ff4757;
+            background: rgba(255, 71, 87, 0.1);
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 8px;
+            color: var(--tg-theme-text-color, #ffffff);
+        }
+
+        .quick-actions {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--tg-theme-button-color, #2ea6ff);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--tg-theme-text-color, #ffffff);
+            border: 1px solid var(--tg-theme-hint-color, #aaaaaa);
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                flex-direction: column;
+            }
+            
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Выбор администратора</h1>
+            <p>Выберите подходящего администратора для получения помощи</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="onlineCount">0</div>
+                <div class="stat-label">Онлайн</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">Всего</div>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="loading">
+                <p>⏳ Загрузка списка администраторов...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <button class="btn btn-secondary" onclick="refreshData()">🔄 Обновить</button>
+        <button class="btn btn-primary" id="selectBtn" onclick="selectAdmin()" disabled>
+            ✨ Выбрать администратора
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/YOUR_USERNAME/telegram-bot-webapp@main/telegram-webapp-integration.js"></script>
+    <script>
+        let selectedAdminId = null;
+        let adminsData = [];
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminsData();
+        });
+
+        // Загрузка данных администраторов
+        async function loadAdminsData() {
+            try {
+                // Симулируем загрузку данных (в реальности данные приходят через WebApp)
+                const mockData = {
+                    admins: [
+                        {
+                            id: 123456789,
+                            tag: 'support_lead',
+                            name: 'Главный администратор',
+                            username: 'admin_user',
+                            specialization: 'Техническая поддержка',
+                            status: 'online',
+                            rating: 5,
+                            responseTime: '1 мин',
+                            avatar: '🦹♂️'
+                        },
+                        {
+                            id: 987654321,
+                            tag: 'moderator_1',
+                            name: 'Модератор',
+                            username: 'moderator_user',
+                            specialization: 'Общие вопросы',
+                            status: 'online',
+                            rating: 4.8,
+                            responseTime: '3 мин',
+                            avatar: '👮‍♂️'
+                        }
+                    ],
+                    stats: {
+                        online: 2,
+                        total: 2
+                    }
+                };
+
+                displayAdmins(mockData);
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showError('Не удалось загрузить список администраторов');
+            }
+        }
+
+        // Отображение администраторов
+        function displayAdmins(data) {
+            adminsData = data.admins;
+            
+            // Обновляем статистику
+            document.getElementById('onlineCount').textContent = data.stats.online;
+            document.getElementById('totalCount').textContent = data.stats.total;
+
+            const contentDiv = document.getElementById('content');
+
+            if (adminsData.length === 0) {
+                contentDiv.innerHTML = `
+                    <div class="empty-state">
+                        <h3>😔 Администраторы недоступны</h3>
+                        <p>В данный момент нет свободных администраторов. Попробуйте позже.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const adminGridHtml = adminsData.map(admin => `
+                <div class="admin-card" data-admin-id="${admin.id}" onclick="selectAdminCard(${admin.id})">
+                    <div class="admin-header">
+                        <div class="admin-avatar">${admin.avatar}</div>
+                        <div class="admin-info">
+                            <h3>#${admin.tag}</h3>
+                            <div class="admin-status">
+                                <div class="status-dot"></div>
+                                ${admin.status}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Рейтинг:</span>
+                            <span class="detail-value rating">⭐ ${admin.rating}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Время ответа:</span>
+                            <span class="detail-value response-time">${admin.responseTime}</span>
+                        </div>
+                        ${admin.username ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Username:</span>
+                            <span class="detail-value">@${admin.username}</span>
+                        </div>
+                        ` : ''}
+                        <div class="specialization">${admin.specialization}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            contentDiv.innerHTML = `<div class="admin-grid">${adminGridHtml}</div>`;
+        }
+
+        // Выбор карточки администратора
+        function selectAdminCard(adminId) {
+            // Убираем выделение с других карточек
+            document.querySelectorAll('.admin-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Выделяем выбранную карточку
+            const selectedCard = document.querySelector(`[data-admin-id="${adminId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+                selectedAdminId = adminId;
+                document.getElementById('selectBtn').disabled = false;
+                
+                // Вибрация при выборе
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                }
+            }
+        }
+
+        // Отправка выбранного администратора
+        function selectAdmin() {
+            if (!selectedAdminId) {
+                showError('Пожалуйста, выберите администратора');
+                return;
+            }
+
+            const selectedAdmin = adminsData.find(admin => admin.id === selectedAdminId);
+            if (!selectedAdmin) {
+                showError('Администратор не найден');
+                return;
+            }
+
+            // Отправляем данные боту через WebApp
+            if (window.Telegram?.WebApp) {
+                try {
+                    const data = {
+                        action: 'select_admin',
+                        admin_id: selectedAdminId,
+                        admin_tag: selectedAdmin.tag,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    window.Telegram.WebApp.sendData(JSON.stringify(data));
+                    
+                    // Уведомление об успехе
+                    if (window.Telegram.WebApp.showAlert) {
+                        window.Telegram.WebApp.showAlert(`Отправлен запрос администратору #${selectedAdmin.tag}`);
+                    }
+                    
+                    // Закрываем WebApp
+                    setTimeout(() => {
+                        window.Telegram.WebApp.close();
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Ошибка отправки данных:', error);
+                    showError('Не удалось отправить запрос');
+                }
+            } else {
+                // Для отладки вне Telegram
+                console.log('Выбран администратор:', selectedAdmin);
+                alert(`Выбран администратор: #${selectedAdmin.tag}`);
+            }
+        }
+
+        // Обновление данных
+        function refreshData() {
+            document.getElementById('content').innerHTML = `
+                <div class="loading">
+                    <p>⏳ Обновление данных...</p>
+                </div>
+            `;
+            
+            selectedAdminId = null;
+            document.getElementById('selectBtn').disabled = true;
+            
+            // Вибрация при обновлении
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+            
+            setTimeout(loadAdminsData, 1000);
+        }
+
+        // Показ ошибки
+        function showError(message) {
+            document.getElementById('content').innerHTML = `
+                <div class="error">
+                    <h3>❌ Ошибка</h3>
+                    <p>${message}</p>
+                    <button class="btn btn-primary" onclick="refreshData()" style="margin-top: 12px;">
+                        🔄 Попробовать снова
+                    </button>
+                </div>
+            `;
+        }
+
+        // Обработчик закрытия WebApp
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            
+            // Настройка темы
+            window.Telegram.WebApp.setHeaderColor('#1a1a1a');
+            window.Telegram.WebApp.setBackgroundColor('#0f0f0f');
+            
+            // Кнопка назад
+            window.Telegram.WebApp.BackButton.onClick(function() {
+                window.Telegram.WebApp.close();
+            });
+            window.Telegram.WebApp.BackButton.show();
+        }
+    </script>
+</body>
+</html>

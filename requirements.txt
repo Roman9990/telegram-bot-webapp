@@ -1,0 +1,10 @@
+aiogram>=3.0
+asyncio
+sqlite3
+datetime
+json
+logging
+re
+os
+time
+typing
