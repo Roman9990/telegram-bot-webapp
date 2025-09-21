@@ -1,0 +1,14 @@
+{
+  "admins": [
+    {
+      "id": 5518423575,
+      "tag": "owner",
+      "role": "Владелец",
+      "description": "Владелец",
+      "status": "available",
+      "rating": 0.0,
+      "updated_at": "2025-09-21T21:54:10.501339"
+    }
+  ],
+  "last_updated": "2025-09-21T21:54:10.501343"
+}
