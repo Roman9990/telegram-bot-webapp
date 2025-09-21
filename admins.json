@@ -8,7 +8,16 @@
       "status": "available",
       "rating": 0.0,
       "updated_at": "2025-09-21T22:01:02.949299"
+    },
+    {
+      "id": 7084662609,
+      "tag": "лох",
+      "role": "админ",
+      "description": "админ",
+      "status": "available",
+      "rating": 0.0,
+      "updated_at": "2025-09-21T22:02:53.678936"
     }
   ],
-  "last_updated": "2025-09-21T22:01:02.949305"
+  "last_updated": "2025-09-21T22:02:53.678946"
 }
